@@ -53,4 +53,20 @@ public class MarsRoverTest
     System.out.println(expectedPath);
     assertThat(new MarsRover("sssslssss").path(), equalTo(expectedPath));
   }
+
+  @Test
+  public void driveNorthAfterInitialProgrammingToTheEast()
+  {
+    MarsRover rover = new MarsRover("ssss").turnLeft()
+        .moveForward()
+        .moveForward();
+    String expectedPath = new StringBuilder().append("    *")
+        .append(LINE_SEPARATOR)
+        .append("    |")
+        .append(LINE_SEPARATOR)
+        .append("X---+")
+        .append(LINE_SEPARATOR)
+        .toString();
+    assertThat(rover.path(), equalTo(expectedPath));
+  }
 }
