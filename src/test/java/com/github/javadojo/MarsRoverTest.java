@@ -69,4 +69,10 @@ public class MarsRoverTest
         .toString();
     assertThat(rover.path(), equalTo(expectedPath));
   }
+
+  @Test
+  public void driveEastThanTakeSampleThanDriveABitMore()
+  {
+    assertThat(new MarsRover("sssSsss").path(), equalTo("X--S--*" + LINE_SEPARATOR));
+  }
 }

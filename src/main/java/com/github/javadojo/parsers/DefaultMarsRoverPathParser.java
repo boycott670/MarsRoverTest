@@ -28,6 +28,8 @@ public final class DefaultMarsRoverPathParser implements MarsRoverPathParser
   
   private Heading currentHeading = Heading.RIGHT;
   
+  private boolean isTakingSample = false;
+  
   private void turnLeft()
   {
     final int nextHeadingOrdinal = currentHeading.ordinal() - 1;
@@ -38,6 +40,11 @@ public final class DefaultMarsRoverPathParser implements MarsRoverPathParser
   private void turnRight()
   {
     currentHeading = Heading.values()[(currentHeading.ordinal() + 1) % 4];
+  }
+  
+  private void takeSample()
+  {
+    isTakingSample = true;
   }
   
   private boolean isGoingLeftOrRight()
@@ -55,6 +62,11 @@ public final class DefaultMarsRoverPathParser implements MarsRoverPathParser
     return Arrays.asList('l', 'r').contains(Character.valueOf(path[currentPathPointIndex + 1]));
   }
   
+  private boolean isGoingToTakeSample(final int currentPathPointIndex)
+  {
+    return path[currentPathPointIndex + 1] == 'S';
+  }
+  
   private void incrementToNextMove()
   {
     lastAddedCoordinates = nextCoordinates(lastAddedCoordinates);
@@ -62,10 +74,18 @@ public final class DefaultMarsRoverPathParser implements MarsRoverPathParser
   
   private void addMove(MarsRoverMove move)
   {
-    moves.put(lastAddedCoordinates, move);
+    if (isTakingSample)
+    {
+      moves.put(lastAddedCoordinates, MarsRoverMove.TAKE_SAMPLE_MOVE);
+      isTakingSample = false;
+    }
+    else
+    {
+      moves.put(lastAddedCoordinates, move);
+    }
   }
   
-  private void addMoveWhileIncrement(MarsRoverMove move)
+  private void addMoveWhileIncrementing(MarsRoverMove move)
   {
     incrementToNextMove();
     addMove(move);
@@ -106,16 +126,20 @@ public final class DefaultMarsRoverPathParser implements MarsRoverPathParser
       {
         if (isGoingToTurn(pathPointIndex))
         {
-          addMoveWhileIncrement(MarsRoverMove.TURN_MOVE);
+          addMoveWhileIncrementing(MarsRoverMove.TURN_MOVE);
+        }
+        else if (isGoingToTakeSample(pathPointIndex))
+        {
+          takeSample();
         }
         else
         {
-          addMoveWhileIncrement(isGoingLeftOrRight() ? MarsRoverMove.HORIZONTAL_MOVE : MarsRoverMove.VERTICAL_MOVE);
+          addMoveWhileIncrementing(isGoingLeftOrRight() ? MarsRoverMove.HORIZONTAL_MOVE : MarsRoverMove.VERTICAL_MOVE);
         }
       }
     }
     
-    addMoveWhileIncrement(MarsRoverMove.FINAL_MOVE);
+    addMoveWhileIncrementing(MarsRoverMove.FINAL_MOVE);
     
     return moves;
   }

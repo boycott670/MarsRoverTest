@@ -41,6 +41,14 @@ public enum MarsRoverMove
     {
       return '+';
     }
+  },
+  TAKE_SAMPLE_MOVE
+  {
+    @Override
+    public char draw()
+    {
+      return 'S';
+    }
   };
 
   public abstract char draw();
