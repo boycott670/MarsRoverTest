@@ -17,6 +17,12 @@ public enum MarsRoverMove
     {
       return '*';
     }
+    
+    @Override
+    public MarsRoverMove overlappingMove()
+    {
+      return this;
+    }
   },
   HORIZONTAL_MOVE
   {
@@ -49,6 +55,17 @@ public enum MarsRoverMove
     {
       return 'S';
     }
+    
+    @Override
+    public boolean canBeOverlappedBy(MarsRoverMove overlappingMove)
+    {
+      if (overlappingMove != FINAL_MOVE)
+      {
+        return false;
+      }
+      
+      return super.canBeOverlappedBy(overlappingMove);
+    }
   },
   OVERLAP_MOVE
   {
@@ -60,4 +77,14 @@ public enum MarsRoverMove
   };
 
   public abstract char draw();
+  
+  public boolean canBeOverlappedBy(final MarsRoverMove overlappingMove)
+  {
+    return true;
+  }
+  
+  public MarsRoverMove overlappingMove()
+  {
+    return MarsRoverMove.OVERLAP_MOVE;
+  }
 }

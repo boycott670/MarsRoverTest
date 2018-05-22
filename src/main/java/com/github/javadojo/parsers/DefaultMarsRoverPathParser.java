@@ -82,14 +82,7 @@ public final class DefaultMarsRoverPathParser implements MarsRoverPathParser
     }
     else
     {
-      if (moves.containsKey(lastAddedCoordinates))
-      {
-        moves.put(lastAddedCoordinates, MarsRoverMove.OVERLAP_MOVE);
-      }
-      else
-      {
-        moves.put(lastAddedCoordinates, move);
-      }
+      moves.compute(lastAddedCoordinates, (__, moveToOverlap) -> moveToOverlap == null ? move : moveToOverlap.canBeOverlappedBy(move) ? move.overlappingMove() : moveToOverlap);
     }
   }
   
