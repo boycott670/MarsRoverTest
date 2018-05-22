@@ -49,6 +49,14 @@ public enum MarsRoverMove
     {
       return 'S';
     }
+  },
+  OVERLAP_MOVE
+  {
+    @Override
+    public char draw()
+    {
+      return '+';
+    }
   };
 
   public abstract char draw();

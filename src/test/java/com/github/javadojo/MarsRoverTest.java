@@ -75,4 +75,52 @@ public class MarsRoverTest
   {
     assertThat(new MarsRover("sssSsss").path(), equalTo("X--S--*" + LINE_SEPARATOR));
   }
+
+  @Test
+  public void turnRightTwoTimes()
+  {
+    MarsRover marsRover = new MarsRover("sssrsss").turnRight()
+        .moveForward()
+        .moveForward()
+        .moveForward();
+    String expectedPath = new StringBuilder().append("X--+")
+        .append(LINE_SEPARATOR)
+        .append("   |")
+        .append(LINE_SEPARATOR)
+        .append("   |")
+        .append(LINE_SEPARATOR)
+        .append("*--+")
+        .append(LINE_SEPARATOR)
+        .toString();
+
+    assertThat(marsRover.path(), equalTo(expectedPath));
+  }
+
+  @Test
+  public void pathOverlapsAreMarkedWithRightCursor()
+  {
+    MarsRover marsRover = new MarsRover("ssssssrsss").turnRight()
+        .moveForward()
+        .moveForward()
+        .moveForward()
+        .turnRight()
+        .moveForward()
+        .moveForward()
+        .moveForward()
+        .moveForward();
+
+    String expectedPath = new StringBuilder().append("   *   ")
+        .append(LINE_SEPARATOR)
+        .append("X--+--+")
+        .append(LINE_SEPARATOR)
+        .append("   |  |")
+        .append(LINE_SEPARATOR)
+        .append("   |  |")
+        .append(LINE_SEPARATOR)
+        .append("   +--+")
+        .append(LINE_SEPARATOR)
+        .toString();
+
+    assertThat(marsRover.path(), equalTo(expectedPath));
+  }
 }

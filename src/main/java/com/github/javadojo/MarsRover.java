@@ -31,6 +31,13 @@ public final class MarsRover
     return this;
   }
   
+  MarsRover turnRight()
+  {
+    path.append('r');
+    
+    return this;
+  }
+  
   MarsRover moveForward()
   {
     path.append('s');

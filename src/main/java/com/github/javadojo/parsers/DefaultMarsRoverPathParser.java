@@ -47,14 +47,10 @@ public final class DefaultMarsRoverPathParser implements MarsRoverPathParser
     isTakingSample = true;
   }
   
+  
   private boolean isGoingLeftOrRight()
   {
     return Arrays.asList(Heading.LEFT, Heading.RIGHT).contains(currentHeading);
-  }
-  
-  private ImmutableMarsRoverCoordinates nextCoordinates(final ImmutableMarsRoverCoordinates currentCoordinates)
-  {
-    return ImmutableMarsRoverCoordinates.plus(currentCoordinates, directions[currentHeading.ordinal()]);
   }
   
   private boolean isGoingToTurn(final int currentPathPointIndex)
@@ -65,6 +61,11 @@ public final class DefaultMarsRoverPathParser implements MarsRoverPathParser
   private boolean isGoingToTakeSample(final int currentPathPointIndex)
   {
     return path[currentPathPointIndex + 1] == 'S';
+  }
+  
+  private ImmutableMarsRoverCoordinates nextCoordinates(final ImmutableMarsRoverCoordinates currentCoordinates)
+  {
+    return ImmutableMarsRoverCoordinates.plus(currentCoordinates, directions[currentHeading.ordinal()]);
   }
   
   private void incrementToNextMove()
@@ -81,7 +82,14 @@ public final class DefaultMarsRoverPathParser implements MarsRoverPathParser
     }
     else
     {
-      moves.put(lastAddedCoordinates, move);
+      if (moves.containsKey(lastAddedCoordinates))
+      {
+        moves.put(lastAddedCoordinates, MarsRoverMove.OVERLAP_MOVE);
+      }
+      else
+      {
+        moves.put(lastAddedCoordinates, move);
+      }
     }
   }
   
