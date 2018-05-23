@@ -192,4 +192,18 @@ public class MarsRoverTest
     assertThat(new MarsRover("sssrsssrsssrsss").path(), equalTo(expectedPath));
   }
 
+  @Test
+  public void intermediatePathCanBeSent()
+  {
+    MarsRover marsRover = new MarsRover("sss");
+    String intermadiatePath = marsRover.path();
+
+    marsRover.moveForward()
+        .moveForward();
+    String finalPath = marsRover.path();
+
+    assertThat(intermadiatePath, equalTo("X--*" + LINE_SEPARATOR));
+    assertThat(finalPath, equalTo("X----*" + LINE_SEPARATOR));
+  }
+
 }

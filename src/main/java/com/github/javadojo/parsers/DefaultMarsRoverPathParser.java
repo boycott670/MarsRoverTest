@@ -1,8 +1,8 @@
 package com.github.javadojo.parsers;
 
+import java.util.ArrayDeque;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.LinkedHashMap;
 
 import com.github.javadojo.ImmutableMarsRoverCoordinates;
 import com.github.javadojo.MarsRoverMove;
@@ -47,20 +47,24 @@ public final class DefaultMarsRoverPathParser implements MarsRoverPathParser
     isTakingSample = true;
   }
   
-  
-  private boolean isGoingLeftOrRight()
+  private boolean isCurrentlyGoingLeftOrRight()
   {
     return Arrays.asList(Heading.LEFT, Heading.RIGHT).contains(currentHeading);
   }
   
+  private boolean isValidNextPathPointIndex(final int currentPathPointIndex)
+  {
+    return currentPathPointIndex + 1 < path.length;
+  }
+  
   private boolean isGoingToTurn(final int currentPathPointIndex)
   {
-    return Arrays.asList('l', 'r').contains(Character.valueOf(path[currentPathPointIndex + 1]));
+    return isValidNextPathPointIndex(currentPathPointIndex) && Arrays.asList('l', 'r').contains(path[currentPathPointIndex + 1]);
   }
   
   private boolean isGoingToTakeSample(final int currentPathPointIndex)
   {
-    return path[currentPathPointIndex + 1] == 'S';
+    return isValidNextPathPointIndex(currentPathPointIndex) && path[currentPathPointIndex + 1] == 'S';
   }
   
   private ImmutableMarsRoverCoordinates nextCoordinates(final ImmutableMarsRoverCoordinates currentCoordinates)
@@ -73,28 +77,41 @@ public final class DefaultMarsRoverPathParser implements MarsRoverPathParser
     lastAddedCoordinates = nextCoordinates(lastAddedCoordinates);
   }
   
-  private void addMove(MarsRoverMove move)
+  private void addMove(MarsRoverMove move, boolean isLastPathPointIndex)
   {
     if (isTakingSample)
     {
       moves.put(lastAddedCoordinates, MarsRoverMove.TAKE_SAMPLE_MOVE);
+      
       isTakingSample = false;
     }
     else
     {
-      moves.compute(lastAddedCoordinates, (__, moveToOverlap) -> moveToOverlap == null ? move : moveToOverlap.canBeOverlappedBy(move) ? move.overlappingMove() : moveToOverlap);
+      if (moves.containsKey(lastAddedCoordinates))
+      {
+        if (isLastPathPointIndex || moves.get(lastAddedCoordinates).canBeOverridenOnSecondPass())
+        {
+          moves.remove(lastAddedCoordinates);
+          
+          moves.put(lastAddedCoordinates, isLastPathPointIndex ? move : MarsRoverMove.OVERLAP_MOVE);
+        }
+      }
+      else
+      {
+        moves.put(lastAddedCoordinates, move);
+      }
     }
   }
   
-  private void addMoveWhileIncrementing(MarsRoverMove move)
+  private void addMoveWhileIncrementing(MarsRoverMove move, boolean isLastPathPointIndex)
   {
     incrementToNextMove();
-    addMove(move);
+    addMove(move, isLastPathPointIndex);
   }
 
   private char[] path;
   
-  private Map<ImmutableMarsRoverCoordinates, MarsRoverMove> moves;
+  private LinkedHashMap<ImmutableMarsRoverCoordinates, MarsRoverMove> moves;
   
   private ImmutableMarsRoverCoordinates lastAddedCoordinates;
 
@@ -105,15 +122,27 @@ public final class DefaultMarsRoverPathParser implements MarsRoverPathParser
   }
 
   @Override
-  public Map<ImmutableMarsRoverCoordinates, MarsRoverMove> parsePath()
+  public LinkedHashMap<ImmutableMarsRoverCoordinates, MarsRoverMove> parsePath()
   {
-    moves = new HashMap<>();
+    return parsePathFrom(new LinkedHashMap<>());
+  }
+  
+  @Override
+  public LinkedHashMap<ImmutableMarsRoverCoordinates, MarsRoverMove> parsePathFrom(LinkedHashMap<ImmutableMarsRoverCoordinates, MarsRoverMove> currentlyParsedPath)
+  {
+    moves = currentlyParsedPath;
     
-    lastAddedCoordinates = ImmutableMarsRoverCoordinates.of(0, 0);
+    if (moves.isEmpty())
+    {
+      lastAddedCoordinates = ImmutableMarsRoverCoordinates.of(0, 0);
+      addMove(MarsRoverMove.INITIAL_MOVE, false);
+    }
+    else
+    {
+      lastAddedCoordinates = new ArrayDeque<>(moves.keySet()).pollLast();
+    }
     
-    addMove(MarsRoverMove.INITIAL_MOVE);
-    
-    for (int pathPointIndex = 0; pathPointIndex < path.length - 1; pathPointIndex++)
+    for (int pathPointIndex = 0; pathPointIndex < path.length; pathPointIndex++)
     {
       if (path[pathPointIndex] == 'l')
       {
@@ -127,7 +156,7 @@ public final class DefaultMarsRoverPathParser implements MarsRoverPathParser
       {
         if (isGoingToTurn(pathPointIndex))
         {
-          addMoveWhileIncrementing(MarsRoverMove.TURN_MOVE);
+          addMoveWhileIncrementing(MarsRoverMove.TURN_MOVE, false);
         }
         else if (isGoingToTakeSample(pathPointIndex))
         {
@@ -135,12 +164,10 @@ public final class DefaultMarsRoverPathParser implements MarsRoverPathParser
         }
         else
         {
-          addMoveWhileIncrementing(isGoingLeftOrRight() ? MarsRoverMove.HORIZONTAL_MOVE : MarsRoverMove.VERTICAL_MOVE);
+          addMoveWhileIncrementing(isCurrentlyGoingLeftOrRight() ? MarsRoverMove.HORIZONTAL_MOVE : MarsRoverMove.VERTICAL_MOVE, pathPointIndex == path.length - 1);
         }
       }
     }
-    
-    addMoveWhileIncrementing(MarsRoverMove.FINAL_MOVE);
     
     return moves;
   }

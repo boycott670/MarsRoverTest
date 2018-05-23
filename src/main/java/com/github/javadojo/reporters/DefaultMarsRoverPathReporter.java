@@ -1,8 +1,9 @@
 package com.github.javadojo.reporters;
 
+import java.util.ArrayDeque;
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.Map;
+import java.util.LinkedHashMap;
 import java.util.Optional;
 import java.util.function.ToIntFunction;
 import java.util.stream.Collectors;
@@ -15,7 +16,7 @@ import com.github.javadojo.MarsRoverMove;
 public final class DefaultMarsRoverPathReporter implements MarsRoverPathReporter
 {
   
-  private Map<ImmutableMarsRoverCoordinates, MarsRoverMove> path;
+  private LinkedHashMap<ImmutableMarsRoverCoordinates, MarsRoverMove> path;
   
   private int edgePathPointCoordinates(final Comparator<ImmutableMarsRoverCoordinates> comparator,
       final ToIntFunction<ImmutableMarsRoverCoordinates> metricResolver)
@@ -60,9 +61,13 @@ public final class DefaultMarsRoverPathReporter implements MarsRoverPathReporter
   }
 
   @Override
-  public void setPath(Map<ImmutableMarsRoverCoordinates, MarsRoverMove> path)
+  public void setPath(LinkedHashMap<ImmutableMarsRoverCoordinates, MarsRoverMove> path)
   {
-    this.path = path;
+    this.path = new LinkedHashMap<>(path);
+    
+    final ImmutableMarsRoverCoordinates lastAddedCoordinates = new ArrayDeque<>(this.path.keySet()).pollLast();
+    
+    this.path.put(lastAddedCoordinates, MarsRoverMove.FINAL_MOVE);
   }
 
   @Override

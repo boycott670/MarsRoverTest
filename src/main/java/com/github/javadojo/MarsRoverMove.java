@@ -11,14 +11,9 @@ public enum MarsRoverMove
     }
     
     @Override
-    public boolean canBeOverlappedBy(MarsRoverMove overlappingMove)
+    public boolean canBeOverridenOnSecondPass()
     {
-      if (overlappingMove != FINAL_MOVE)
-      {
-        return false;
-      }
-      
-      return super.canBeOverlappedBy(overlappingMove);
+      return false;
     }
   },
   FINAL_MOVE
@@ -27,12 +22,6 @@ public enum MarsRoverMove
     public char draw()
     {
       return '*';
-    }
-    
-    @Override
-    public MarsRoverMove overlappingMove()
-    {
-      return this;
     }
   },
   HORIZONTAL_MOVE
@@ -68,14 +57,9 @@ public enum MarsRoverMove
     }
     
     @Override
-    public boolean canBeOverlappedBy(MarsRoverMove overlappingMove)
+    public boolean canBeOverridenOnSecondPass()
     {
-      if (overlappingMove != FINAL_MOVE)
-      {
-        return false;
-      }
-      
-      return super.canBeOverlappedBy(overlappingMove);
+      return false;
     }
   },
   OVERLAP_MOVE
@@ -89,13 +73,8 @@ public enum MarsRoverMove
 
   public abstract char draw();
   
-  public boolean canBeOverlappedBy(final MarsRoverMove overlappingMove)
+  public boolean canBeOverridenOnSecondPass()
   {
     return true;
-  }
-  
-  public MarsRoverMove overlappingMove()
-  {
-    return MarsRoverMove.OVERLAP_MOVE;
   }
 }
