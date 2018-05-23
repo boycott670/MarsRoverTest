@@ -158,4 +158,38 @@ public class MarsRoverTest
     assertThat(new MarsRover("sssSsssrsssrsssrsss").path(), equalTo(expectedPath));
   }
 
+  @Test
+  public void startPointIsNotOverridenOnSecondPass()
+  {
+    String expectedPath = new StringBuilder().append("*   ")
+        .append(LINE_SEPARATOR)
+        .append("X--+")
+        .append(LINE_SEPARATOR)
+        .append("|  |")
+        .append(LINE_SEPARATOR)
+        .append("|  |")
+        .append(LINE_SEPARATOR)
+        .append("+--+")
+        .append(LINE_SEPARATOR)
+        .toString();
+
+    assertThat(new MarsRover("sssrsssrsssrssss").path(), equalTo(expectedPath));
+  }
+
+  @Test
+  public void startPointIsOverridenByCurrentPosition()
+  {
+    String expectedPath = new StringBuilder().append("*--+")
+        .append(LINE_SEPARATOR)
+        .append("|  |")
+        .append(LINE_SEPARATOR)
+        .append("|  |")
+        .append(LINE_SEPARATOR)
+        .append("+--+")
+        .append(LINE_SEPARATOR)
+        .toString();
+
+    assertThat(new MarsRover("sssrsssrsssrsss").path(), equalTo(expectedPath));
+  }
+
 }

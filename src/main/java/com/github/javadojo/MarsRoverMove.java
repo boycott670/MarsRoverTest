@@ -9,6 +9,17 @@ public enum MarsRoverMove
     {
       return 'X';
     }
+    
+    @Override
+    public boolean canBeOverlappedBy(MarsRoverMove overlappingMove)
+    {
+      if (overlappingMove != FINAL_MOVE)
+      {
+        return false;
+      }
+      
+      return super.canBeOverlappedBy(overlappingMove);
+    }
   },
   FINAL_MOVE
   {
